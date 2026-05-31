@@ -32,7 +32,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         )
 
     def get_primary_image(self, obj):
-        img = obj.images.first()
+        img = obj.images.order_by('sort_order').first()
         return img.image_url if img else None
 
 
@@ -40,10 +40,15 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     variants = ProductVariantSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    primary_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = "__all__"
+
+    def get_primary_image(self, obj):
+        img = obj.images.order_by('sort_order').first()
+        return img.image_url if img else None
 
 
 class ReviewSerializer(serializers.ModelSerializer):
